@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Urutan Goresan Kanji</title>
+
+<style>
+body {
+  margin: 0;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+svg {
+  width: 320px;
+  height: 320px;
+}
+
+path {
+  fill: none;
+  stroke: black;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.number {
+  font-size: 13px;
+  fill: #888;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<svg viewBox="0 0 200 200">
+
+  <!-- Semua path goresan dulu -->
+  <!-- 1 -->
+  <path id="s1" d="M40 30 Q80 40 160 30"/>
+
+  <!-- 2 -->
+  <path id="s2" d="M45 50 L45 170"/>
+
+  <!-- 3 -->
+  <path id="s3" d="M45 55 L160 45 L160 165 L140 155"/>
+
+  <!-- 4 -->
+  <path id="s4" d="M100 37 L100 170"/>
+
+  <!-- 5 -->
+  <path id="s5" d="M60 85 Q75 90 85 100"/>
+
+  <!-- 6 -->
+  <path id="s6" d="M60 115 Q75 120 85 130"/>
+
+  <!-- 7 -->
+  <path id="s7" d="M115 85 Q135 95 145 100"/>
+
+  <!-- 8 -->
+  <path id="s8" d="M115 115 Q135 125 145 130"/>
+
+  <!-- Posisi nomor mengikuti gambar referensi -->
+  <!-- 1: di atas-kiri garis horizontal atas, sebelum titik awal M40,30 -->
+  <text id="n1" class="number" x="24" y="20">1</text>
+  <!-- 2: di kiri garis vertikal kiri (x=45), di tengah-tengah garis (y=50-170 → tengah ~110) -->
+  <text id="n2" class="number" x="26" y="115">2</text>
+  <!-- 3: di kiri, tepat di atas titik awal garis horizontal dalam M45,55 -->
+  <text id="n3" class="number" x="26" y="50">3</text>
+  <!-- 4: di atas garis 1, di atas titik awal garis vertikal tengah M100,50 -->
+  <text id="n4" class="number" x="84" y="20">4</text>
+  <!-- 5: di atas-kiri garis pendek 5 (M60,85), dalam kotak kiri -->
+  <text id="n5" class="number" x="50" y="80">5</text>
+  <!-- 6: di atas-kiri garis pendek 6 (M60,115), dalam kotak kiri -->
+  <text id="n6" class="number" x="50" y="110">6</text>
+  <!-- 7: di atas-kiri garis pendek 7 (M115,85), dalam kotak kanan -->
+  <text id="n7" class="number" x="104" y="80">7</text>
+  <!-- 8: di atas-kiri garis pendek 8 (M115,115), dalam kotak kanan -->
+  <text id="n8" class="number" x="104" y="110">8</text>
+
+</svg>
+
+<script>
+const strokes = [
+  { path: document.getElementById("s1"), num: document.getElementById("n1") },
+  { path: document.getElementById("s2"), num: document.getElementById("n2") },
+  { path: document.getElementById("s3"), num: document.getElementById("n3") },
+  { path: document.getElementById("s4"), num: document.getElementById("n4") },
+  { path: document.getElementById("s5"), num: document.getElementById("n5") },
+  { path: document.getElementById("s6"), num: document.getElementById("n6") },
+  { path: document.getElementById("s7"), num: document.getElementById("n7") },
+  { path: document.getElementById("s8"), num: document.getElementById("n8") }
+];
+
+strokes.forEach(s => {
+  const len = s.path.getTotalLength();
+  s.path.style.strokeDasharray = len;
+  s.path.style.strokeDashoffset = len;
+});
+
+function animateStroke(obj, duration) {
+  return new Promise(resolve => {
+    obj.path.style.transition = `stroke-dashoffset ${duration}ms ease`;
+    obj.path.style.strokeDashoffset = 0;
+    obj.num.style.opacity = 1;
+    setTimeout(resolve, duration);
+  });
+}
+
+function resetStroke(obj) {
+  obj.path.style.transition = "none";
+  const len = obj.path.getTotalLength();
+  obj.path.style.strokeDashoffset = len;
+  obj.num.style.opacity = 0;
+}
+
+async function loop() {
+  while (true) {
+    for (const stroke of strokes) {
+      await animateStroke(stroke, 700);
+    }
+
+    await new Promise(r => setTimeout(r, 600));
+
+    strokes.forEach(resetStroke);
+
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+loop();
+</script>
+
+</body>
+</html>
